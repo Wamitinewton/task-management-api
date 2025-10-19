@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class TaskServiceTest {
+class TaskServiceTest {
 
     @Mock
     private TaskRepository taskRepository;
@@ -40,7 +40,6 @@ public class TaskServiceTest {
     private User testUser;
     private Task testTask;
     private Tag testTag;
-
 
     @BeforeEach
     void setUp() {
@@ -126,6 +125,7 @@ public class TaskServiceTest {
         assertNotNull(responses);
         assertEquals(1, responses.size());
         assertEquals("Test Task", responses.get(0).getTitle());
+        verify(taskRepository).findByUserOrderByDueDateAsc(testUser);
     }
 
     @Test
@@ -149,6 +149,7 @@ public class TaskServiceTest {
 
         assertNotNull(response);
         assertEquals("Test Task", response.getTitle());
+        verify(taskRepository).findByIdAndUser(1L, testUser);
     }
 
     @Test
@@ -158,6 +159,7 @@ public class TaskServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
                 () -> taskService.getTaskById(999L, testUser));
+        verify(taskRepository).findByIdAndUser(999L, testUser);
     }
 
     @Test
@@ -174,7 +176,22 @@ public class TaskServiceTest {
         TaskResponse response = taskService.updateTask(1L, request, testUser);
 
         assertNotNull(response);
-        verify(taskRepository).save(any(Task.class));
+        // The service saves twice: once for the update, once for Google Calendar sync
+        verify(taskRepository, times(2)).save(any(Task.class));
+    }
+
+    @Test
+    void updateTask_NotFound() {
+        UpdateTaskRequest request = UpdateTaskRequest.builder()
+                .title("Updated Task")
+                .build();
+
+        when(taskRepository.findByIdAndUser(999L, testUser))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> taskService.updateTask(999L, request, testUser));
+        verify(taskRepository, never()).save(any(Task.class));
     }
 
     @Test
@@ -193,11 +210,26 @@ public class TaskServiceTest {
     }
 
     @Test
+    void deleteTask_WithoutGoogleEvent_Success() {
+        testTask.setGoogleEventId(null);
+
+        when(taskRepository.findByIdAndUser(1L, testUser))
+                .thenReturn(Optional.of(testTask));
+        doNothing().when(taskRepository).delete(any(Task.class));
+
+        taskService.deleteTask(1L, testUser);
+
+        verify(googleCalenderService, never()).deleteCalendarEvent(any(), any());
+        verify(taskRepository).delete(testTask);
+    }
+
+    @Test
     void deleteTask_NotFound() {
         when(taskRepository.findByIdAndUser(999L, testUser))
                 .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> taskService.deleteTask(999L, testUser));
+        verify(taskRepository, never()).delete(any(Task.class));
     }
 }

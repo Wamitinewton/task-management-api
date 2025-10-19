@@ -135,7 +135,6 @@ public class GoogleCalenderService {
             event.setEnd(end);
         }
 
-        // Add task completion status to description
         String statusText = task.getCompleted() ? "Status: Completed" : "Status: Pending";
         String description = task.getDescription() != null ?
                 task.getDescription() + "\n\n" + statusText : statusText;

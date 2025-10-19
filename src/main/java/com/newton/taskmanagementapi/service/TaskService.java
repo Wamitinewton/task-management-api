@@ -123,7 +123,6 @@ public class TaskService {
 
         task = taskRepository.save(task);
 
-        // Update Google Calendar event
         if (calendarUpdateNeeded && task.getGoogleEventId() != null) {
             try {
                 googleCalendarService.updateCalendarEvent(task, user);
@@ -131,7 +130,6 @@ public class TaskService {
                 log.error("Failed to update calendar event for task {}", task.getId(), e);
             }
         } else if (task.getDueDate() != null && task.getGoogleEventId() == null) {
-            // Create calendar event if due date is set but no event exists
             try {
                 String eventId = googleCalendarService.createCalendarEvent(task, user);
                 task.setGoogleEventId(eventId);
