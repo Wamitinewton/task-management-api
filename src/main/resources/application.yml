@@ -60,7 +60,7 @@ app:
     allowed-origins: ${app.cors.allowed.origins}
   oauth2:
     authorized-redirect-uris:
-      - http://localhost:3000/oauth2/redirect
+      - http://localhost:8080/
 
 # Server Configuration
 server:

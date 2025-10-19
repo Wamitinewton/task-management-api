@@ -1,10 +1,7 @@
 package com.newton.taskmanagementapi.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,17 +11,21 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @EqualsAndHashCode.Include
     private String email;
 
     @Column(nullable = false)
@@ -47,10 +48,12 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuthProvider authProvider;
+    @Builder.Default
+    private AuthProvider authProvider = AuthProvider.GOOGLE;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @ToString.Exclude
     private Set<Task> tasks = new HashSet<>();
 
     @CreationTimestamp
@@ -60,7 +63,6 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
 
     public enum AuthProvider {
         GOOGLE,
