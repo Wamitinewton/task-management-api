@@ -127,10 +127,8 @@ class TaskControllerIntegrationTest {
 
     @Test
     void getAllTasks_Unauthorized() throws Exception {
-        // Spring Security redirects unauthorized requests (302) instead of returning 403
-        // This is the expected behavior for session-based authentication
         mockMvc.perform(get("/api/tasks"))
-                .andExpect(status().isFound()); // 302 redirect to login
+                .andExpect(status().isFound());
     }
 
     @Test

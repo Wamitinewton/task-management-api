@@ -176,7 +176,6 @@ class TaskServiceTest {
         TaskResponse response = taskService.updateTask(1L, request, testUser);
 
         assertNotNull(response);
-        // The service saves twice: once for the update, once for Google Calendar sync
         verify(taskRepository, times(2)).save(any(Task.class));
     }
 
