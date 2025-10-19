@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: task-management-api
+
+  config:
+    import: optional:file:keys.properties
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskmanagement
+    username: ${db.username}
+    password: ${db.password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${google.oauth2.client.id}
+            client-secret: ${google.oauth2.client.secret}
+            scope:
+              - openid
+              - profile
+              - email
+              - https://www.googleapis.com/auth/calendar
+              - https://www.googleapis.com/auth/calendar.events
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
+# JWT Configuration
+jwt:
+  secret: ${jwt.secret}
+  expiration: ${jwt.expiration}
+  refresh-expiration: ${jwt.refresh.expiration}
+
+# Google Calendar Configuration
+google:
+  calendar:
+    application-name: ${google.calendar.application.name}
+    credentials-file-path: ${google.credentials.file.path}
+
+# Application Configuration
+app:
+  cors:
+    allowed-origins: ${app.cors.allowed.origins}
+  oauth2:
+    authorized-redirect-uris:
+      - http://localhost:3000/oauth2/redirect
+
+# Server Configuration
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.taskmanagement: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+
+# Swagger/OpenAPI
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

@@ -1,0 +1,19 @@
+# Database Configuration
+db.username=postgres
+db.password=your_database_password
+
+# JWT Configuration
+jwt.secret=your-secret-key-min-256-bits-change-this-in-production-environment
+jwt.expiration=86400000
+jwt.refresh.expiration=604800000
+
+# Google OAuth2 Configuration
+google.oauth2.client.id=your-google-client-id
+google.oauth2.client.secret=your-google-client-secret
+
+# Google Calendar Configuration
+google.calendar.application.name=Task Management API
+google.credentials.file.path=classpath:google-credentials.json
+
+# CORS Configuration
+app.cors.allowed.origins=http://localhost:3000
